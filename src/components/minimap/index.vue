@@ -48,6 +48,10 @@ const minimapContainerRef = ref();
 const minimapImgRef = ref();
 const minimapImgOffsetX = ref(0);
 const minimapImgOffsetY = ref(0);
+const minimapMousedownX = ref(0);
+const minimapMousedownY = ref(0);
+const minimapMousedownLeftNum = ref(0);
+const minimapMousedownTopNum = ref(0);
 
 // 样式px转换数字
 const pxToNumber = (px) => {
@@ -102,14 +106,12 @@ const handleImgOnload = () => {
 // 图片鼠标按下事件
 const handleImgMousedown = (e) => {
 	document.addEventListener("mousemove", handleImgMousemove);
-	console.log(e.clientX - imgRef.value.offsetLeft, "ccc");
 	imgOffsetX.value = e.clientX - imgRef.value.offsetLeft;
 	imgOffsetY.value = e.clientY - imgRef.value.offsetTop;
 };
 // 图片鼠标移动事件
 const handleImgMousemove = (e) => {
 	e.preventDefault();
-	console.log(e.clientX, imgOffsetX.value, e.clientX - imgOffsetX.value);
 	imgRef.value.style.left = `${e.clientX - imgOffsetX.value}px`;
 	imgRef.value.style.top = `${e.clientY - imgOffsetY.value}px`;
 };
@@ -199,29 +201,36 @@ const scaleImage = () => {
 	imgRef.value.style.transform = `scale(${scale.value})`;
 	isScaling.value = false;
 };
-
 // minimap鼠标按下事件
 const handleMinimapImgMousedown = (e) => {
 	e.stopPropagation();
 	document.addEventListener("mousemove", handleMinimapImgMousemove);
-	console.log(e.clientX - minimapImgRef.value.offsetLeft, "mmm");
 	minimapImgOffsetX.value = e.clientX - minimapImgRef.value.offsetLeft;
 	minimapImgOffsetY.value = e.clientY - minimapImgRef.value.offsetTop;
-	// imgOffsetX.value = e.clientX -
+	// 记录鼠标点击时，鼠标位置及minimapImg初始位置
+	minimapMousedownX.value = e.clientX;
+	minimapMousedownY.value = e.clientY;
+	minimapMousedownLeftNum.value = pxToNumber(minimapImgStyle.value.left);
+	minimapMousedownTopNum.value = pxToNumber(minimapImgStyle.value.top);
 };
 // minimap鼠标移动事件
 const handleMinimapImgMousemove = (e) => {
 	e.stopPropagation();
 	e.preventDefault();
-	console.log(
-		e.clientX,
-		minimapImgOffsetX.value,
-		e.clientX - minimapImgOffsetX.value
-	);
-	// minimapImgRef.value.style.left = `${e.clientX - minimapImgOffsetX.value}px`;
-	// minimapImgRef.value.style.top = `${e.clientY - minimapImgOffsetY.value}px`;
-	minimapImgStyle.value.left = `${e.clientX - minimapImgOffsetX.value}px`;
-	minimapImgStyle.value.top = `${e.clientY - minimapImgOffsetY.value}px`;
+	const leftNum =
+		minimapMousedownLeftNum.value +
+		(e.clientX - minimapMousedownX.value) / minimapScale.value;
+	const topNum =
+		minimapMousedownTopNum.value +
+		(e.clientY - minimapMousedownY.value) / minimapScale.value;
+	const miniLeftNum = pxToNumber(minimapBgStyle.value.left);
+	const miniTopNum = pxToNumber(minimapBgStyle.value.top);
+	// 由于minimap是缩放0.2显示，所以移动偏移量需要以0.2还原
+	// 限制边界区域，不允许超出
+	minimapImgStyle.value.left = `${
+		leftNum < miniLeftNum ? miniLeftNum : leftNum
+	}px`;
+	minimapImgStyle.value.top = `${topNum < miniTopNum ? miniTopNum : topNum}px`;
 };
 // minimap鼠标抬起事件
 const handleMinimapImgMouseup = (e) => {
