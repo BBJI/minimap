@@ -225,12 +225,31 @@ const handleMinimapImgMousemove = (e) => {
 		(e.clientY - minimapMousedownY.value) / minimapScale.value;
 	const miniLeftNum = pxToNumber(minimapBgStyle.value.left);
 	const miniTopNum = pxToNumber(minimapBgStyle.value.top);
+	const maxLeftNum =
+		pxToNumber(minimapBgStyle.value.width) -
+		pxToNumber(minimapImgStyle.value.width) +
+		minimapContainerPaddingLeft.value;
+	const maxTopNum =
+		pxToNumber(minimapBgStyle.value.height) -
+		pxToNumber(minimapImgStyle.value.height) +
+		minimapContainerPaddingTop.value;
 	// 由于minimap是缩放0.2显示，所以移动偏移量需要以0.2还原
 	// 限制边界区域，不允许超出
-	minimapImgStyle.value.left = `${
-		leftNum < miniLeftNum ? miniLeftNum : leftNum
-	}px`;
-	minimapImgStyle.value.top = `${topNum < miniTopNum ? miniTopNum : topNum}px`;
+	if (leftNum < miniLeftNum) {
+		minimapImgStyle.value.left = `${miniLeftNum}px`;
+	} else if (leftNum > maxLeftNum) {
+		minimapImgStyle.value.left = `${maxLeftNum}px`;
+	} else {
+		minimapImgStyle.value.left = `${leftNum}px`;
+	}
+
+	if (topNum < miniTopNum) {
+		minimapImgStyle.value.top = `${miniTopNum}px`;
+	} else if (topNum > maxTopNum) {
+		minimapImgStyle.value.top = `${maxTopNum}px`;
+	} else {
+		minimapImgStyle.value.top = `${topNum}px`;
+	}
 };
 // minimap鼠标抬起事件
 const handleMinimapImgMouseup = (e) => {
