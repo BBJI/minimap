@@ -223,33 +223,55 @@ const handleMinimapImgMousemove = (e) => {
 	const topNum =
 		minimapMousedownTopNum.value +
 		(e.clientY - minimapMousedownY.value) / minimapScale.value;
-	const miniLeftNum = pxToNumber(minimapBgStyle.value.left);
-	const miniTopNum = pxToNumber(minimapBgStyle.value.top);
+	const miniLeftNum = minimapContainerPaddingLeft.value;
+	const miniTopNum = minimapContainerPaddingTop.value;
 	const maxLeftNum =
-		pxToNumber(minimapBgStyle.value.width) -
+		imageContainerRef.value.clientWidth -
 		pxToNumber(minimapImgStyle.value.width) +
 		minimapContainerPaddingLeft.value;
 	const maxTopNum =
-		pxToNumber(minimapBgStyle.value.height) -
+		imageContainerRef.value.clientHeight -
 		pxToNumber(minimapImgStyle.value.height) +
 		minimapContainerPaddingTop.value;
 	// 由于minimap是缩放0.2显示，所以移动偏移量需要以0.2还原
 	// 限制边界区域，不允许超出
 	if (leftNum < miniLeftNum) {
 		minimapImgStyle.value.left = `${miniLeftNum}px`;
+		minimapBgStyle.value.width = `${
+			imageContainerRef.value.clientWidth + leftNum - miniLeftNum
+		}px`;
+		minimapBgStyle.value.left = `${
+			minimapContainerPaddingLeft.value - (leftNum - miniLeftNum)
+		}px`;
 	} else if (leftNum > maxLeftNum) {
 		minimapImgStyle.value.left = `${maxLeftNum}px`;
+		minimapBgStyle.value.width = `${
+			imageContainerRef.value.clientWidth - (leftNum - maxLeftNum)
+		}px`;
 	} else {
 		minimapImgStyle.value.left = `${leftNum}px`;
 	}
 
 	if (topNum < miniTopNum) {
 		minimapImgStyle.value.top = `${miniTopNum}px`;
+		minimapBgStyle.value.height = `${
+			imageContainerRef.value.clientHeight + topNum - miniTopNum
+		}px`;
+		minimapBgStyle.value.top = `${
+			minimapContainerPaddingTop.value - (topNum - miniTopNum)
+		}px`;
 	} else if (topNum > maxTopNum) {
 		minimapImgStyle.value.top = `${maxTopNum}px`;
+		minimapBgStyle.value.height = `${
+			imageContainerRef.value.clientHeight - (topNum - maxTopNum)
+		}px`;
 	} else {
 		minimapImgStyle.value.top = `${topNum}px`;
 	}
+
+	// 原图相应位置变化
+	imgRef.value.style.left = `${leftNum - minimapContainerPaddingLeft.value}px`;
+	imgRef.value.style.top = `${topNum - minimapContainerPaddingTop.value}px`;
 };
 // minimap鼠标抬起事件
 const handleMinimapImgMouseup = (e) => {
