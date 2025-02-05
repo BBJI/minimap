@@ -52,6 +52,8 @@ const minimapMousedownX = ref(0);
 const minimapMousedownY = ref(0);
 const minimapMousedownLeftNum = ref(0);
 const minimapMousedownTopNum = ref(0);
+const minimapBgWidth = ref(0);
+const minimapBgHeight = ref(0);
 
 // 样式px转换数字
 const pxToNumber = (px) => {
@@ -207,11 +209,13 @@ const handleMinimapImgMousedown = (e) => {
 	document.addEventListener("mousemove", handleMinimapImgMousemove);
 	minimapImgOffsetX.value = e.clientX - minimapImgRef.value.offsetLeft;
 	minimapImgOffsetY.value = e.clientY - minimapImgRef.value.offsetTop;
-	// 记录鼠标点击时，鼠标位置及minimapImg初始位置
+	// 记录鼠标点击时，鼠标位置及minimapImg初始位置，minimapBg的宽高
 	minimapMousedownX.value = e.clientX;
 	minimapMousedownY.value = e.clientY;
 	minimapMousedownLeftNum.value = pxToNumber(minimapImgStyle.value.left);
 	minimapMousedownTopNum.value = pxToNumber(minimapImgStyle.value.top);
+	minimapBgWidth.value = pxToNumber(minimapBgStyle.value.width);
+	minimapBgHeight.value = pxToNumber(minimapBgStyle.value.height);
 };
 // minimap鼠标移动事件
 const handleMinimapImgMousemove = (e) => {
@@ -219,18 +223,22 @@ const handleMinimapImgMousemove = (e) => {
 	e.preventDefault();
 	const leftNum =
 		minimapMousedownLeftNum.value +
+		minimapBgWidth.value -
+		imageContainerRef.value.clientWidth +
 		(e.clientX - minimapMousedownX.value) / minimapScale.value;
 	const topNum =
 		minimapMousedownTopNum.value +
+		minimapBgHeight.value -
+		imageContainerRef.value.clientHeight +
 		(e.clientY - minimapMousedownY.value) / minimapScale.value;
 	const miniLeftNum = minimapContainerPaddingLeft.value;
 	const miniTopNum = minimapContainerPaddingTop.value;
 	const maxLeftNum =
-		imageContainerRef.value.clientWidth -
+		minimapBgWidth.value -
 		pxToNumber(minimapImgStyle.value.width) +
 		minimapContainerPaddingLeft.value;
 	const maxTopNum =
-		imageContainerRef.value.clientHeight -
+		minimapBgHeight.value -
 		pxToNumber(minimapImgStyle.value.height) +
 		minimapContainerPaddingTop.value;
 	// 由于minimap是缩放0.2显示，所以移动偏移量需要以0.2还原
@@ -238,7 +246,7 @@ const handleMinimapImgMousemove = (e) => {
 	if (leftNum < miniLeftNum) {
 		minimapImgStyle.value.left = `${miniLeftNum}px`;
 		minimapBgStyle.value.width = `${
-			imageContainerRef.value.clientWidth + leftNum - miniLeftNum
+			minimapBgWidth.value + leftNum - miniLeftNum
 		}px`;
 		minimapBgStyle.value.left = `${
 			minimapContainerPaddingLeft.value - (leftNum - miniLeftNum)
@@ -246,7 +254,7 @@ const handleMinimapImgMousemove = (e) => {
 	} else if (leftNum > maxLeftNum) {
 		minimapImgStyle.value.left = `${maxLeftNum}px`;
 		minimapBgStyle.value.width = `${
-			imageContainerRef.value.clientWidth - (leftNum - maxLeftNum)
+			minimapBgWidth.value - (leftNum - maxLeftNum)
 		}px`;
 	} else {
 		minimapImgStyle.value.left = `${leftNum}px`;
@@ -255,7 +263,7 @@ const handleMinimapImgMousemove = (e) => {
 	if (topNum < miniTopNum) {
 		minimapImgStyle.value.top = `${miniTopNum}px`;
 		minimapBgStyle.value.height = `${
-			imageContainerRef.value.clientHeight + topNum - miniTopNum
+			minimapBgHeight.value + topNum - miniTopNum
 		}px`;
 		minimapBgStyle.value.top = `${
 			minimapContainerPaddingTop.value - (topNum - miniTopNum)
@@ -263,7 +271,7 @@ const handleMinimapImgMousemove = (e) => {
 	} else if (topNum > maxTopNum) {
 		minimapImgStyle.value.top = `${maxTopNum}px`;
 		minimapBgStyle.value.height = `${
-			imageContainerRef.value.clientHeight - (topNum - maxTopNum)
+			minimapBgHeight.value - (topNum - maxTopNum)
 		}px`;
 	} else {
 		minimapImgStyle.value.top = `${topNum}px`;
