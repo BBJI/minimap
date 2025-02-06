@@ -54,6 +54,8 @@ const minimapMousedownLeftNum = ref(0);
 const minimapMousedownTopNum = ref(0);
 const minimapBgWidth = ref(0);
 const minimapBgHeight = ref(0);
+const minimapOffsetX = ref(0);
+const minimapOffsetY = ref(0);
 
 // 样式px转换数字
 const pxToNumber = (px) => {
@@ -216,6 +218,15 @@ const handleMinimapImgMousedown = (e) => {
 	minimapMousedownTopNum.value = pxToNumber(minimapImgStyle.value.top);
 	minimapBgWidth.value = pxToNumber(minimapBgStyle.value.width);
 	minimapBgHeight.value = pxToNumber(minimapBgStyle.value.height);
+	// 计算minimapImg超出边界时的偏移量
+	minimapOffsetX.value =
+		imgRef.value.offsetLeft < 0
+			? minimapBgWidth.value - imageContainerRef.value.clientWidth
+			: imageContainerRef.value.clientWidth - minimapBgWidth.value;
+	minimapOffsetY.value =
+		imgRef.value.offsetTop < 0
+			? minimapBgHeight.value - imageContainerRef.value.clientHeight
+			: imageContainerRef.value.clientHeight - minimapBgHeight.value;
 };
 // minimap鼠标移动事件
 const handleMinimapImgMousemove = (e) => {
@@ -223,23 +234,21 @@ const handleMinimapImgMousemove = (e) => {
 	e.preventDefault();
 	const leftNum =
 		minimapMousedownLeftNum.value +
-		minimapBgWidth.value -
-		imageContainerRef.value.clientWidth +
+		minimapOffsetX.value +
 		(e.clientX - minimapMousedownX.value) / minimapScale.value;
 	const topNum =
 		minimapMousedownTopNum.value +
-		minimapBgHeight.value -
-		imageContainerRef.value.clientHeight +
+		minimapOffsetY.value +
 		(e.clientY - minimapMousedownY.value) / minimapScale.value;
 	const miniLeftNum = minimapContainerPaddingLeft.value;
 	const miniTopNum = minimapContainerPaddingTop.value;
 	const maxLeftNum =
-		minimapBgWidth.value -
-		pxToNumber(minimapImgStyle.value.width) +
+		imageContainerRef.value.clientWidth -
+		imgRef.value.clientWidth +
 		minimapContainerPaddingLeft.value;
 	const maxTopNum =
-		minimapBgHeight.value -
-		pxToNumber(minimapImgStyle.value.height) +
+		imageContainerRef.value.clientHeight -
+		imgRef.value.clientHeight +
 		minimapContainerPaddingTop.value;
 	// 由于minimap是缩放0.2显示，所以移动偏移量需要以0.2还原
 	// 限制边界区域，不允许超出
